@@ -15,7 +15,7 @@
 
 ## 技术栈
 
-- **后端框架**: Spring Boot 3.x, Spring Cloud Alibaba, Spring Cloud Gateway
+- **后端框架**: Spring Boot 3.x, Spring Cloud , Spring Cloud Gateway
 - **数据库**: MySQL 8.0
 - **缓存**: Redis 8.6.1
 - **搜索引擎**: Elasticsearch 9.3.2
