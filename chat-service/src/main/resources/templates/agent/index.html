@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客服工作台</title>
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <link th:href="@{/css/agent.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="agent-page">
+        <header class="header">
+            <div class="container header-content">
+                <a href="/" class="logo">客服工作台</a>
+                <nav class="nav" id="mainNav">
+                    <a href="/">对话</a>
+                </nav>
+                <div class="user-area" id="userArea">
+                    <div class="user-dropdown">
+                        <div class="user-avatar" id="userAvatar" onclick="toggleDropdown()">
+                            <span id="userName"></span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-item" onclick="logout()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                退出登录
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="agent-main">
+            <aside class="agent-sidebar">
+                <div class="sidebar-tabs">
+                    <button class="sidebar-tab active">
+                        待处理
+                        <span class="count">0</span>
+                    </button>
+                    <button class="sidebar-tab">
+                        进行中
+                        <span class="count">0</span>
+                    </button>
+                    <button class="sidebar-tab">
+                        已完成
+                    </button>
+                </div>
+                <div class="session-search">
+                    <input type="text" placeholder="搜索会话...">
+                </div>
+                <div class="session-list">
+                </div>
+            </aside>
+
+            <div class="agent-chat">
+                <div class="agent-chat-header">
+                    <div class="user-info">
+                        <div class="avatar">客</div>
+                        <div class="user-details">
+                            <h3 id="chatUserName">请选择会话</h3>
+                            <p id="chatUserSource">-</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button onclick="createTicket()">创建工单</button>
+                        <button onclick="transferSession()">转接</button>
+                        <button onclick="closeSession()">结束会话</button>
+                    </div>
+                </div>
+
+                <div class="messages-container" id="messagesContainer">
+                    <div class="welcome-screen" id="welcomeScreen">
+                        <div class="welcome-icon">🥰</div>
+                        <h1 class="welcome-title">选择一个会话开始服务</h1>
+                        <p class="welcome-desc">从左侧列表选择待处理的会话，或查看进行中的会话。</p>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input type="text" class="chat-input" id="messageInput" placeholder="输入回复内容..." onkeypress="handleKeyPress(event)">
+                        <button class="send-btn" onclick="sendMessage()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="user-panel">
+                <div class="panel-section">
+                    <div class="panel-title">用户信息</div>
+                    <div class="info-row">
+                        <span class="info-label">用户ID</span>
+                        <span class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">注册时间</span>
+                        <span class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">咨询次数</span>
+                        <span class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">会员等级</span>
+                        <span class="info-value">-</span>
+                    </div>
+                </div>
+                <div class="panel-section">
+                    <div class="panel-title">历史记录</div>
+                    <div style="color: var(--text-tertiary); font-size: 14px; padding: 10px 0;">暂无历史记录</div>
+                </div>
+                <div class="panel-section">
+                    <div class="panel-title">备注</div>
+                    <textarea class="note-input" placeholder="添加备注信息..."></textarea>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script th:src="@{/js/agent.js}"></script>
+</body>
+</html>

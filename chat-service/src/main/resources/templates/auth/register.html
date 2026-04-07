@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 小凯AI客服</title>
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg-primary);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .auth-logo h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .auth-logo p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+        .form-input:focus {
+            background: var(--bg-primary);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #0071e3 0%, #0077ed 100%);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 113, 227, 0.4);
+        }
+        .auth-btn:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .auth-footer a {
+            color: var(--accent);
+            font-weight: 500;
+        }
+        .error-msg {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 32px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 4px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+        .tab.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .tab:hover:not(.active) {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <h1>小凯AI客服</h1>
+                <p>创建您的账号</p>
+            </div>
+            
+            <div class="tabs">
+                <a href="/login" class="tab">登录</a>
+                <a href="/register" class="tab active">注册</a>
+            </div>
+            
+            <div class="error-msg" id="errorMsg"></div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" class="form-input" id="username" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">昵称</label>
+                    <input type="text" class="form-input" id="nickname" placeholder="请输入昵称（可选）">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" class="form-input" id="password" placeholder="请输入密码（至少6位）" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">确认密码</label>
+                    <input type="password" class="form-input" id="confirmPassword" placeholder="请再次输入密码" required>
+                </div>
+                <button type="submit" class="auth-btn" id="submitBtn">注册</button>
+            </form>
+            
+            <div class="auth-footer">
+                已有账号？<a href="/login">立即登录</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const nickname = document.getElementById('nickname').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (!username) {
+                errorMsg.textContent = '请输入用户名';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorMsg.textContent = '密码长度至少6位';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorMsg.textContent = '两次密码输入不一致';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '注册中...';
+            errorMsg.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/user/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, nickname })
+                });
+                
+                const res = await response.json();
+                
+                if (res.code === 200) {
+                    localStorage.setItem('token', res.data.token);
+                    localStorage.setItem('user', JSON.stringify(res.data.user));
+                    window.location.href = '/';
+                } else {
+                    errorMsg.textContent = res.message || '注册失败';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.textContent = '网络错误，请稍后重试';
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '注册';
+            }
+        });
+    </script>
+</body>
+</html>

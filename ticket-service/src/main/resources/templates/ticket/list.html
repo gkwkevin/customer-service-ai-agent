@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工单管理</title>
+    <link th:href="@{/ticket/css/common.css}" rel="stylesheet">
+    <link th:href="@{/ticket/css/ticket.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="ticket-page">
+        <header class="header">
+            <div class="container header-content">
+                <a href="/" class="logo">工单管理</a>
+                <nav class="nav" id="mainNav">
+                    <a href="/ticket/list">工单</a>
+                </nav>
+                <div class="user-area" id="userArea">
+                    <div class="user-dropdown">
+                        <div class="user-avatar" id="userAvatar" onclick="toggleDropdown()">
+                            <span id="userName"></span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-item" onclick="logout()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                退出登录
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="ticket-main">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">工单管理</h1>
+                        <p class="page-subtitle">查看和处理所有工单</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal()">创建工单</button>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-box-icon blue">📋</div>
+                        <div class="stat-box-value">0</div>
+                        <div class="stat-box-label">总工单数</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-icon orange">⏳</div>
+                        <div class="stat-box-value">0</div>
+                        <div class="stat-box-label">待处理</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-icon green">✅</div>
+                        <div class="stat-box-value">0</div>
+                        <div class="stat-box-label">已解决</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-icon purple">📊</div>
+                        <div class="stat-box-value">0%</div>
+                        <div class="stat-box-label">解决率</div>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <span class="filter-label">状态</span>
+                        <select class="filter-select">
+                            <option value="">全部状态</option>
+                            <option value="1">待处理</option>
+                            <option value="2">处理中</option>
+                            <option value="3">已解决</option>
+                            <option value="4">已关闭</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">优先级</span>
+                        <select class="filter-select">
+                            <option value="">全部优先级</option>
+                            <option value="1">高</option>
+                            <option value="2">中</option>
+                            <option value="3">低</option>
+                        </select>
+                    </div>
+                    <input type="text" class="search-input" placeholder="搜索工单标题或内容...">
+                </div>
+
+                <div class="ticket-table">
+                    <div class="table-header">
+                        <div class="col-ticket">工单编号</div>
+                        <div class="col-title">标题</div>
+                        <div class="col-user">提交人</div>
+                        <div class="col-status">状态</div>
+                        <div class="col-assignee">处理人</div>
+                        <div class="col-action">操作</div>
+                    </div>
+                </div>
+
+                <div class="pagination">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">创建工单</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">工单标题</label>
+                    <input type="text" class="form-input" id="createTitle" placeholder="请输入工单标题">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工单内容</label>
+                    <textarea class="form-input form-textarea" id="createContent" placeholder="请详细描述问题..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">优先级</label>
+                    <select class="form-select" id="createPriority">
+                        <option value="3">低</option>
+                        <option value="2" selected>中</option>
+                        <option value="1">高</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">指派处理人</label>
+                    <select class="form-select" id="createAssignee">
+                        <option value="">请选择处理人</option>
+                        <option value="1">张三</option>
+                        <option value="2">李四</option>
+                        <option value="3">王五</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="createTicket()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">编辑工单</h3>
+                <button class="modal-close" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label class="form-label">工单编号</label>
+                    <input type="text" class="form-input" id="editTicketNo" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工单标题</label>
+                    <input type="text" class="form-input" id="editTitle" placeholder="请输入工单标题">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工单内容</label>
+                    <textarea class="form-input form-textarea" id="editContent" placeholder="请详细描述问题..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">状态</label>
+                    <select class="form-select" id="editStatus">
+                        <option value="1">待处理</option>
+                        <option value="2">处理中</option>
+                        <option value="3">已解决</option>
+                        <option value="4">已关闭</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">优先级</label>
+                    <select class="form-select" id="editPriority">
+                        <option value="1">高</option>
+                        <option value="2">中</option>
+                        <option value="3">低</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">指派处理人</label>
+                    <select class="form-select" id="editAssignee">
+                        <option value="">请选择处理人</option>
+                        <option value="1">张三</option>
+                        <option value="2">李四</option>
+                        <option value="3">王五</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/ticket/js/ticket.js}"></script>
+</body>
+</html>

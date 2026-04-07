@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台</title>
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <style>
+        .admin-page { min-height: 100vh; background: var(--bg-secondary); }
+        .admin-main { margin-top: 52px; padding: 32px 0; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+        .page-title { font-size: 32px; font-weight: 600; }
+        .user-table { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: 0 2px 12px var(--shadow); overflow: hidden; }
+        .table-header { display: flex; padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 500; color: var(--text-secondary); background: var(--bg-tertiary); }
+        .table-row { display: flex; padding: 16px 24px; border-bottom: 1px solid var(--border); align-items: center; }
+        .table-row:hover { background: var(--bg-tertiary); }
+        .col-id { width: 80px; }
+        .col-username { width: 150px; }
+        .col-nickname { width: 150px; }
+        .col-role { width: 120px; }
+        .col-status { width: 100px; }
+        .col-time { width: 180px; }
+        .col-action { flex: 1; text-align: right; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .badge-user { background: rgba(0, 113, 227, 0.12); color: #0071e3; }
+        .badge-agent { background: rgba(52, 199, 89, 0.12); color: #34c759; }
+        .badge-admin { background: rgba(255, 149, 0, 0.12); color: #ff9500; }
+        .badge-active { background: rgba(52, 199, 89, 0.12); color: #34c759; }
+        .badge-disabled { background: rgba(255, 59, 48, 0.12); color: #ff3b30; }
+        .action-btn { padding: 6px 12px; background: var(--bg-tertiary); border-radius: 6px; font-size: 13px; margin-left: 8px; cursor: pointer; border: none; }
+        .action-btn:hover { background: var(--bg-secondary); }
+        .action-btn.danger { color: #ff3b30; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); width: 400px; padding: 24px; }
+        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        .form-select { width: 100%; padding: 10px 14px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
+        .btn-primary { background: linear-gradient(135deg, #0071e3 0%, #0077ed 100%); color: #fff; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .user-dropdown { position: relative; }
+        .user-avatar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: var(--transition); }
+        .user-avatar:hover { background: var(--bg-secondary); }
+        .user-avatar span { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+        .user-avatar svg { color: var(--text-tertiary); transition: transform 0.2s ease; }
+        .user-avatar.active svg { transform: rotate(180deg); }
+        .dropdown-menu { position: absolute; top: calc(100% + 8px); right: 0; min-width: 160px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); display: none; z-index: 100; }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-size: 14px; color: var(--text-primary); cursor: pointer; transition: var(--transition); }
+        .dropdown-item:first-child { border-radius: 11px 11px 0 0; }
+        .dropdown-item:last-child { border-radius: 0 0 11px 11px; }
+        .dropdown-item:hover { background: var(--bg-secondary); }
+        .dropdown-item svg { color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="admin-page">
+        <header class="header">
+            <div class="container header-content">
+                <a href="/" class="logo">管理后台</a>
+                <nav class="nav" id="mainNav">
+                    <a href="/">对话</a>
+                    <a href="/agent">客服</a>
+                    <a href="/ticket/list">工单</a>
+                    <a href="/admin">管理</a>
+                </nav>
+                <div class="user-area" id="userArea">
+                    <div class="user-dropdown">
+                        <div class="user-avatar" id="userAvatar" onclick="toggleDropdown()">
+                            <span id="userName"></span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-item" onclick="logout()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                退出登录
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">用户管理</h1>
+                </div>
+
+                <div class="user-table">
+                    <div class="table-header">
+                        <div class="col-id">ID</div>
+                        <div class="col-username">用户名</div>
+                        <div class="col-nickname">昵称</div>
+                        <div class="col-role">角色</div>
+                        <div class="col-status">状态</div>
+                        <div class="col-time">注册时间</div>
+                        <div class="col-action">操作</div>
+                    </div>
+                    <div id="userList"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="roleModal">
+        <div class="modal">
+            <h3 class="modal-title">修改角色</h3>
+            <input type="hidden" id="editUserId">
+            <div class="form-group">
+                <label class="form-label">选择角色</label>
+                <select class="form-select" id="editRole">
+                    <option value="1">普通用户</option>
+                    <option value="2">客服</option>
+                    <option value="3">管理员</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeRoleModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveRole()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        const token = localStorage.getItem('token');
+
+        function init() {
+            if (!checkLoginAndPermission()) return;
+            loadUsers();
+        }
+
+        function checkLoginAndPermission() {
+            const userStr = localStorage.getItem('user');
+            if (!token || !userStr) {
+                window.location.href = '/login';
+                return false;
+            }
+            currentUser = JSON.parse(userStr);
+            if (currentUser.role !== 3) {
+                alert('您没有管理员权限');
+                window.location.href = '/';
+                return false;
+            }
+            document.getElementById('userName').textContent = currentUser.nickname || currentUser.username;
+            return true;
+        }
+
+        function toggleDropdown() {
+            document.getElementById('dropdownMenu').classList.toggle('show');
+            document.getElementById('userAvatar').classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+                document.getElementById('userAvatar').classList.remove('active');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/admin/users', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.code === 200) {
+                    renderUsers(data.data);
+                } else {
+                    alert(data.message || '加载失败');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderUsers(users) {
+            const container = document.getElementById('userList');
+            container.innerHTML = users.map(user => `
+                <div class="table-row">
+                    <div class="col-id">#${user.id}</div>
+                    <div class="col-username">${user.username}</div>
+                    <div class="col-nickname">${user.nickname || '-'}</div>
+                    <div class="col-role"><span class="badge ${getRoleClass(user.role)}">${getRoleName(user.role)}</span></div>
+                    <div class="col-status"><span class="badge ${user.status === 1 ? 'badge-active' : 'badge-disabled'}">${user.status === 1 ? '正常' : '禁用'}</span></div>
+                    <div class="col-time">${user.createTime ? new Date(user.createTime).toLocaleString('zh-CN') : '-'}</div>
+                    <div class="col-action">
+                        <button class="action-btn" onclick="openRoleModal(${user.id}, ${user.role})">修改角色</button>
+                        <button class="action-btn ${user.status === 1 ? 'danger' : ''}" onclick="toggleStatus(${user.id}, ${user.status})">${user.status === 1 ? '禁用' : '启用'}</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getRoleName(role) {
+            const map = { 1: '普通用户', 2: '客服', 3: '管理员' };
+            return map[role] || '未知';
+        }
+
+        function getRoleClass(role) {
+            const map = { 1: 'badge-user', 2: 'badge-agent', 3: 'badge-admin' };
+            return map[role] || '';
+        }
+
+        function openRoleModal(userId, currentRole) {
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editRole').value = currentRole;
+            document.getElementById('roleModal').classList.add('active');
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleModal').classList.remove('active');
+        }
+
+        async function saveRole() {
+            const userId = document.getElementById('editUserId').value;
+            const role = document.getElementById('editRole').value;
+            try {
+                const res = await fetch(`/api/admin/user/${userId}/role`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ role: parseInt(role) })
+                });
+                const data = await res.json();
+                if (data.code === 200) {
+                    closeRoleModal();
+                    loadUsers();
+                } else {
+                    alert(data.message || '修改失败');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function toggleStatus(userId, currentStatus) {
+            const newStatus = currentStatus === 1 ? 2 : 1;
+            const action = newStatus === 2 ? '禁用' : '启用';
+            if (!confirm(`确定要${action}这个用户吗？`)) return;
+            
+            try {
+                const res = await fetch(`/api/admin/user/${userId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const data = await res.json();
+                if (data.code === 200) {
+                    loadUsers();
+                } else {
+                    alert(data.message || '操作失败');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

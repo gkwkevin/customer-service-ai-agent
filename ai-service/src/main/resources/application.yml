@@ -1,0 +1,22 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ai-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
+deepseek:
+  api-key: ${DEEPSEEK_API_KEY:sk-2c6b4b0288ef44bc9bbc91de606321de}
+  base-url: https://api.deepseek.com
+  model: deepseek-chat
+
+elasticsearch:
+  host: localhost
+  port: 9200
+  scheme: https
+  username: elastic
+  password: J+RNdMd5Z75iIs1U-R88
