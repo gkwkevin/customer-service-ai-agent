@@ -1,6 +1,6 @@
 # 客服 AI 智能问答系统
 
-基于 Spring Boot 微服务架构的智能客服系统，集成 DeepSeek AI 模型提供智能问答能力，支持 WebSocket 实时通信。
+基于微服务架构的企业级 AI 智能客服平台，集成 DeepSeek 大模型、Elasticsearch 向量检索、WebSocket 实时通信等技术，实现智能问答、人工客服转接、工单管理等功能，提升客户服务效率。
 
 ## 项目架构
 
@@ -15,10 +15,10 @@
 
 ## 技术栈
 
-- **后端框架**: Spring Boot 2.x, Spring Cloud Gateway
+- **后端框架**: Spring Boot 3.x, Spring Cloud Alibaba, Spring Cloud Gateway
 - **数据库**: MySQL 8.0
-- **缓存**: Redis
-- **搜索引擎**: Elasticsearch
+- **缓存**: Redis 8.6.1
+- **搜索引擎**: Elasticsearch 9.3.2
 - **AI 模型**: DeepSeek
 - **实时通信**: WebSocket
 - **前端**: Thymeleaf, 原生 JavaScript/CSS
@@ -46,10 +46,10 @@
 ## 快速开始
 
 ### 环境要求
-- JDK 1.8+
+- JDK 17
 - MySQL 8.0+
-- Redis 6.0+
-- Elasticsearch 7.x+
+- Redis 8.0+
+- Elasticsearch 8.x+
 
 ### 数据库初始化
 
