@@ -17,14 +17,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DeepSeekService {
 
-    private static final String INDEX_NAME = "phone_products";
+    private static final String INDEX_NAME = "phone_products_v2";
 
     @Autowired
     private ElasticsearchClient esClient;
+
+    @Autowired
+    private EmbeddingService embeddingService;
 
     @Autowired
     private DeepSeekConfig config;
@@ -115,39 +119,24 @@ public class DeepSeekService {
 
     public List<Product> searchProducts(String query, int topK) {
         try {
-            System.out.println("开始关键词搜索，查询词: " + query);
+            System.out.println("开始向量搜索，查询: " + query);
 
-            // 提取关键词（去除常见词汇）
-            String searchKeyword = extractSearchKeyword(query);
-            System.out.println("提取的关键词: " + searchKeyword);
-
-            // 使用通配符查询，支持模糊匹配
+            // 1. 将查询转为向量 (Double -> Float)
+            List<Double> embeddingDouble = embeddingService.getEmbedding(query);
+            List<Float> queryVector = embeddingDouble.stream()
+                .map(Double::floatValue)
+                .collect(Collectors.toList());
+            
+            // 2. ES 向量检索（knn）
             SearchResponse<Product> response = esClient.search(s -> s
-                    .index(INDEX_NAME)
-                    .query(q -> q
-                        .bool(b -> b
-                            .should(s1 -> s1
-                                .wildcard(w -> w
-                                    .field("model")
-                                    .value("*" + searchKeyword + "*")
-                                )
-                            )
-                            .should(s2 -> s2
-                                .wildcard(w -> w
-                                    .field("content")
-                                    .value("*" + searchKeyword + "*")
-                                )
-                            )
-                            .should(s3 -> s3
-                                .match(m -> m
-                                    .field("brand")
-                                    .query(searchKeyword)
-                                )
-                            )
-                        )
-                    )
-                    .size(topK),
-                    Product.class
+                .index(INDEX_NAME)
+                .knn(k -> k
+                    .field("embedding")
+                    .queryVector(queryVector)
+                    .k(topK)
+                    .numCandidates(topK * 10)
+                ),
+                Product.class
             );
 
             List<Product> products = new ArrayList<>();
@@ -159,10 +148,10 @@ public class DeepSeekService {
                 }
             }
             
-            System.out.println("搜索完成，找到 " + products.size() + " 个商品");
+            System.out.println("向量搜索完成，找到 " + products.size() + " 个商品");
             return products;
         } catch (Exception e) {
-            System.err.println("搜索失败: " + e.getMessage());
+            System.err.println("向量搜索失败: " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
         }

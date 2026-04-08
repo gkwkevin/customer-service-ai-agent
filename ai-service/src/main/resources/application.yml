@@ -14,6 +14,10 @@ deepseek:
   base-url: https://api.deepseek.com
   model: deepseek-chat
 
+zhipu:
+  api-key: ${ZHIPU_API_KEY:84fb09b27c164d629027e62edb539f7d.PzLh5TJGdlumv4UT}
+  embedding-model: embedding-3
+
 elasticsearch:
   host: localhost
   port: 9200
