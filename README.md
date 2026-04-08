@@ -19,16 +19,23 @@
 - **数据库**: MySQL 8.0
 - **缓存**: Redis 8.6.1
 - **搜索引擎**: Elasticsearch 9.3.2
-- **AI 模型**: DeepSeek
+- **AI 模型**: DeepSeek, 智谱 Embedding-3
 - **实时通信**: WebSocket
 - **前端**: Thymeleaf, 原生 JavaScript/CSS
 - **构建工具**: Maven
 
 ## 功能特性
 
+### 1. RAG + Function Calling 双模态 AI 架构
+- **实现 检索增强生成（RAG）**：用户询问商品时，系统自动通过 **智谱 Embedding-3** 将查询语义向量化，基于 **Elasticsearch 向量检索** 找到语义最相似的商品，结合 DeepSeek 大模型生成精准回答
+- **实现 Function Calling**：用户表达转人工意图时，AI 自动调用函数创建工单并分配客服
+- **智能意图判断**：商品查询触发向量语义检索，转人工触发函数调用，实现 AI 服务的智能化调度
+- **语义理解能力**：支持自然语言描述（如"拍照好的手机"），无需精确关键词即可找到相关商品
+
 ### 用户端
 - 与 AI 客服进行实时对话
 - 智能问答，自动回复常见问题
+- 自然语言商品搜索（语义理解）
 
 ### 客服端
 - 人工客服接入处理
@@ -123,8 +130,9 @@ customer-service-ai-agent/
 - **JWT**: 用户认证与授权
 
 ### ai-service
-- **DeepSeekService**: 调用 DeepSeek AI 模型
-- **Elasticsearch**: 知识库搜索
+- **DeepSeekService**: 调用 DeepSeek AI 模型，实现 RAG 问答和 Function Calling
+- **EmbeddingService**: 集成智谱 Embedding-3，实现文本向量化
+- **Elasticsearch**: 向量检索（k-NN 搜索），支持语义相似度匹配
 
 ### ticket-service
 - 工单 CRUD 操作
@@ -144,11 +152,13 @@ customer-service-ai-agent/
 - [x] 用户注册登录
 - [x] AI 智能问答集成（DeepSeek）
 - [x] RAG 检索增强生成（Elasticsearch）
+- [x] **向量检索**：集成智谱 Embedding-3，实现语义搜索
 - [x] Function Calling 函数调用（转人工）
 - [x] 客服工作台
 - [x] 会话管理（待处理、进行中、已完成）
 - [x] 工单系统
 - [x] 消息历史记录
+- [x] Redis 缓存（聊天记录 30 分钟过期）
 
 ### 第三阶段：AI 能力增强（进行中）
 - [ ] 意图识别优化
